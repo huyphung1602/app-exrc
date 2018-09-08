@@ -57,6 +57,8 @@ class ImportJob < ApplicationJob
     end
 
     def create_commune(commune)
+      return if commune_exist?(commune.code_insee)
+
       intercommunality_id = Intercommunality.find_by(siren: commune.inter_siren).id
       Commune.new(
         name: commune.name,
@@ -73,6 +75,8 @@ class ImportJob < ApplicationJob
     end
 
     def create_intercommunality(intercommunality)
+      return if intercommunality_exist?(intercommunality.siren)
+
       Intercommunality.new(
         name: intercommunality.name,
         siren: intercommunality.siren,
@@ -82,6 +86,14 @@ class ImportJob < ApplicationJob
 
     def generate_to_text(csv)
       IO::read(csv, col_sep: ";", encoding: "ISO8859-1:utf-8").scrub('')
+    end
+
+    def commune_exist?(code_insee)
+      Commune.find_by(code_insee: code_insee)
+    end
+
+    def intercommunality_exist?(siren)
+      Intercommunality.find_by(siren: siren)
     end
   end
 end
