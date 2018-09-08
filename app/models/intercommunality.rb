@@ -16,6 +16,18 @@ class Intercommunality < ApplicationRecord
     where(siren: siren).exists?
   end
 
+  def self.create_intercommunality!(data)
+    return if intercommunality_exist?(data.siren)
+
+    new.tap do |intercommunality|
+      intercommunality.name = data.name
+      intercommunality.siren = data.siren
+      intercommunality.form = data.form
+      intercommunality.name = data.name
+      intercommunality.save!
+    end
+  end
+
   def communes_hash
     communes.each_with_object({}) do |commune, communes_hash|
       communes_hash[commune.code_insee] = commune.name

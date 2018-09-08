@@ -52,36 +52,14 @@ class ImportJob < ApplicationJob
 
     def create_communes(communes)
       communes.each do |commune|
-        create_commune(commune)
+        Commune.create_commune!(commune)
       end
-    end
-
-    def create_commune(commune)
-      return if Commune.commune_exist?(commune.code_insee)
-
-      intercommunality_id = Intercommunality.find_by(siren: commune.inter_siren).id
-      Commune.new(
-        name: commune.name,
-        code_insee: commune.code_insee,
-        population: commune.population,
-        intercommunality_id: intercommunality_id
-      ).save!
     end
 
     def create_intercommunalities(intercommunalities)
       intercommunalities.each do |intercommunality|
-        create_intercommunality(intercommunality)
+        Intercommunality.create_intercommunality!(intercommunality)
       end
-    end
-
-    def create_intercommunality(intercommunality)
-      return if Intercommunality.intercommunality_exist?(intercommunality.siren)
-
-      Intercommunality.new(
-        name: intercommunality.name,
-        siren: intercommunality.siren,
-        form: intercommunality.form
-      ).save!
     end
 
     def csv_from_file_path(file_path)

@@ -23,6 +23,20 @@ class Commune < ApplicationRecord
     where(code_insee: code_insee).exists?
   end
 
+  def self.create_commune!(data)
+    return if commune_exist?(data.code_insee)
+
+    intercommunality_id = Intercommunality.find_by(siren: data.inter_siren).id
+
+    new.tap do |commune|
+      commune.name = data.name
+      commune.code_insee = data.code_insee
+      commune.population = data.population
+      commune.intercommunality_id = intercommunality_id
+      commune.save!
+    end
+  end
+
   def update_content!(code_insee, name)
     self.code_insee = code_insee
     self.name = name
