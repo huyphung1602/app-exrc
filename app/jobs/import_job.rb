@@ -3,7 +3,7 @@ require 'csv'
 class ImportJob < ApplicationJob
 
   InterComStruct = Struct.new(:name, :siren, :form)
-  ComStruct = Struct.new(:name, :code_insee, :population)
+  ComStruct = Struct.new(:name, :code_insee, :population, :inter_siren)
 
   class << self
     def perform_now(csv)
@@ -27,8 +27,8 @@ class ImportJob < ApplicationJob
         end
       end
 
-      create_communes(communes)
       create_intercommunalities(intercommunalities)
+      create_communes(communes)
     end
 
     private
@@ -37,7 +37,8 @@ class ImportJob < ApplicationJob
       ComStruct.new(
         array[8],
         array[6],
-        array[9]
+        array[9],
+        array[1]
       )
     end
 
@@ -56,10 +57,12 @@ class ImportJob < ApplicationJob
     end
 
     def create_commune(commune)
+      intercommunality_id = Intercommunality.find_by(siren: commune.inter_siren).id
       Commune.new(
         name: commune.name,
         code_insee: commune.code_insee,
-        population: commune.population
+        population: commune.population,
+        intercommunality_id: intercommunality_id
       ).save!
     end
 
