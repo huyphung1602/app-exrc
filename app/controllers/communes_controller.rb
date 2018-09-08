@@ -11,12 +11,10 @@ class CommunesController < ApplicationController
   end
 
   def show
-    if commune.present?
-      commune_decorator = CommuneDecorator.new(commune)
-      api_respond_success(CommuneRepresenter.prepare(commune_decorator))
-    else
-      api_respond_not_found
-    end
+    return api_respond_not_found if commune.nil?
+
+    commune_decorator = CommuneDecorator.new(commune)
+    api_respond_success(CommuneRepresenter.prepare(commune_decorator))
   end
 
   private

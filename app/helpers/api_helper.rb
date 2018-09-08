@@ -1,25 +1,20 @@
 module ApiHelper
   STATUS_CODES = {
     SUCCESS:           200,
+    NO_CONTENT:        204,
+    BAD_REQUEST:       400,
     FORBIDDEN:         403,
     NOT_FOUND:         404,
     NOT_ACCEPTABLE:    406,
   }.freeze
 
-  def api_respond_success(response_hash = {})
-    web_api_respond(:SUCCESS, response_hash)
-  end
+  STATUS_CODES.keys.each do |status|
+    status_string = status.to_s.downcase
 
-  def api_respond_forbidden(response_hash = {})
-    web_api_respond(:FORBIDDEN, response_hash)
-  end
-
-  def api_respond_not_found(response_hash = {})
-    web_api_respond(:NOT_FOUND, response_hash)
-  end
-
-  def api_respond_error(response_hash = {})
-    web_api_respond(:NOT_ACCEPTABLE, response_hash)
+    define_method :"api_respond_#{status_string}" do |*args|
+      response_hash = args[0] || {}
+      web_api_respond(status, response_hash)
+    end
   end
 
   private
