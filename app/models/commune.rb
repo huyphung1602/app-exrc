@@ -18,4 +18,10 @@ class Commune < ApplicationRecord
       communes_hash[commune.code_insee] = commune.name
     end
   end
+
+  def update_content!(code_insee, name)
+    self.code_insee = code_insee
+    self.name = name
+    self.save!
+  end
 end
