@@ -19,6 +19,10 @@ class Commune < ApplicationRecord
     end
   end
 
+  def self.commune_exist?(code_insee)
+    where(code_insee: code_insee).exists?
+  end
+
   def update_content!(code_insee, name)
     self.code_insee = code_insee
     self.name = name

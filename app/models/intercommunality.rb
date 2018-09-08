@@ -12,6 +12,10 @@ class Intercommunality < ApplicationRecord
     self.slug = name.parameterize if slug.nil? && name.present?
   end
 
+  def self.intercommunality_exist?(siren)
+    where(siren: siren).exists?
+  end
+
   def communes_hash
     communes.each_with_object({}) do |commune, communes_hash|
       communes_hash[commune.code_insee] = commune.name
