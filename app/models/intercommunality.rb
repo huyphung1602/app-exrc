@@ -17,4 +17,14 @@ class Intercommunality < ApplicationRecord
       communes_hash[commune.code_insee] = commune.name
     end
   end
+
+  def population
+    sum = 0
+    communes.each do |commune|
+      if commune.population
+        sum += commune.population
+      end
+    end
+    sum
+  end
 end
