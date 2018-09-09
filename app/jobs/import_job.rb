@@ -12,18 +12,19 @@ class ImportJob < ApplicationJob
       intercommunalities = []
       communes = []
 
-      CSV.parse(csv)  do |row|
+      CSV.parse(csv) do |row|
+        columns = row.first.split("\;")
+
         if header
+          @col_struct = read_header(columns)
           header = false
           next
         end
 
-        array = row.first.split("\;")
+        communes << commune_structure(columns, col_struct)
 
-        communes << commune_structure(array)
-
-        unless intercommunalities.map(&:name).include?(array[2])
-          intercommunalities << intercommunality_structure(array)
+        unless intercommunalities.map(&:name).include?(columns[col_struct.nom_complet])
+          intercommunalities << intercommunality_structure(columns, col_struct)
         end
       end
 
@@ -32,21 +33,22 @@ class ImportJob < ApplicationJob
     end
 
     private
+    attr_reader :col_struct
 
-    def commune_structure(array)
+    def commune_structure(columns, col_struct)
       ComStruct.new(
-        array[8],
-        array[6],
-        array[9],
-        array[1]
+        columns[col_struct.nom_com],
+        columns[col_struct.insee],
+        columns[col_struct.pop_total],
+        columns[col_struct.siren_epci]
       )
     end
 
-    def intercommunality_structure(array)
+    def intercommunality_structure(columns, col_struct)
       InterComStruct.new(
-        array[2],
-        array[1],
-        array[3].slice(0, 3).downcase
+        columns[col_struct.nom_complet],
+        columns[col_struct.siren_epci],
+        columns[col_struct.form_epci].slice(0, 3).downcase
       )
     end
 
@@ -59,6 +61,12 @@ class ImportJob < ApplicationJob
     def create_intercommunalities(intercommunalities)
       intercommunalities.each do |intercommunality|
         Intercommunality.create_intercommunality!(intercommunality)
+      end
+    end
+
+    def read_header(columns)
+      columns.each_with_object(OpenStruct.new).with_index do |(col_name, col_struct), index|
+        col_struct[col_name] = index
       end
     end
 
